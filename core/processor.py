@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import math
 
 def apply_flip(img, active):
     """Horizontal Flip (Mirroring)."""
@@ -148,3 +149,74 @@ def artificial_plasticity_v4(img, strength):
     sigma_color = strength * 200.0
     sigma_space = strength * 200.0
     return cv2.bilateralFilter(img, d, sigma_color, sigma_space)
+
+def apply_gemini_watermark(img, active):
+    """Draws a Gemini-style sparkle icon in the bottom right using assets/gemini.svg."""
+    if not active: return img
+    
+    try:
+        import cairosvg
+        import io
+        from PIL import Image
+    except ImportError:
+        # Fallback if CairoSVG is not installed (e.g. local dev without deps)
+        print("Warning: CairoSVG not found. Skipping watermark.")
+        return img
+
+    h, w = img.shape[:2]
+    short_side = min(h, w)
+    logo_size = int(math.sqrt(short_side) * 1.5) 
+    padding = int(logo_size * 0.66)
+
+    # Load and Convert SVG
+    svg_path = "assets/gemini.svg"
+    try:
+        # Convert SVG to PNG bytes
+        png_data = cairosvg.svg2png(url=svg_path, output_width=logo_size, output_height=logo_size)
+        
+        # Load into PIL
+        icon_pil = Image.open(io.BytesIO(png_data)).convert("RGBA")
+        icon_arr = np.array(icon_pil)
+
+        # Force White Color (Set RGB to 255)
+        icon_arr[:, :, 0:3] = 255
+        
+        # Apply Opacity (0.6)
+        icon_arr[:, :, 3] = (icon_arr[:, :, 3] * 0.6).astype(np.uint8)
+        
+    except Exception as e:
+        print(f"Error loading SVG watermark: {e}")
+        return img
+
+    # 3. Overlay Logic
+    # Position: Bottom Right
+    y_offset = h - logo_size - padding
+    x_offset = w - logo_size - padding
+    
+    # Ensure usage within bounds
+    if y_offset < 0 or x_offset < 0: return img
+    
+    # Region of Interest (ROI)
+    roi = img[y_offset:y_offset+logo_size, x_offset:x_offset+logo_size]
+    
+    # Alpha Blending
+    # icon_arr is RGBA. Normalize alpha to 0-1
+    alpha_mask = icon_arr[:, :, 3] / 255.0
+    alpha_mask = np.dstack([alpha_mask]*3) # Duplicate for RGB channels
+    
+    # Icon RGB
+    icon_rgb = icon_arr[:, :, :3]
+    
+    # Blend: (Icon * Alpha) + (Background * (1 - Alpha))
+    # Note: ROI might be smaller if we are near edge, but we checked offsets.
+    # We should ensure shapes match exactly just in case (e.g. rounding errors)
+    roi_h, roi_w = roi.shape[:2]
+    icon_rgb = icon_rgb[:roi_h, :roi_w]
+    alpha_mask = alpha_mask[:roi_h, :roi_w]
+    
+    blended = (icon_rgb * alpha_mask + roi * (1.0 - alpha_mask)).astype(np.uint8)
+    
+    # Place back
+    img[y_offset:y_offset+roi_h, x_offset:x_offset+roi_w] = blended
+    
+    return img

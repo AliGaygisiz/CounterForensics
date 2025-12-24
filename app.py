@@ -19,6 +19,7 @@ from core.processor import (
     apply_unsharp_mask,
     chroma_smoothing,
     spectral_grid_injection_v4,
+    apply_gemini_watermark,
 )
 from core.analyzer import compute_fft, plot_2d_spectrum, plot_3d_spectrum
 from core.metadata import process_metadata, extract_exif
@@ -160,6 +161,13 @@ Innoculates a real human photo with synthetic noise patterns, causing it to be f
     # Load Image (Upload or Sample)
     # Load Image (Upload or Sample)
     if uploaded_file:
+        # State Invalidation: Check if file changed
+        file_signature = f"{uploaded_file.name}-{uploaded_file.size}"
+        if st.session_state.get("last_uploaded_file") != file_signature:
+            st.session_state.processed_image = None
+            st.session_state.processing_type = None
+            st.session_state.last_uploaded_file = file_signature
+
         # Upload takes precedence, clear sample
         st.session_state.selected_sample = None
         original_array, _ = convert_to_rgb(uploaded_file)
@@ -247,7 +255,7 @@ def render_dashboard(original_array, uploaded_file):
                         "Tag": st.column_config.TextColumn("Tag", width=150),
                         "Value": st.column_config.TextColumn("Value", width="large"),
                     },
-                    width=None, # Auto
+                    width="stretch", # Auto
                     hide_index=True,
                 )
         else:
@@ -423,6 +431,7 @@ def render_faker(original_array):
                     ["None", "Google Tag", "ChatGPT Tag", "Midjourney Tag"],
                 )
                 f_prompt = st.text_area("Prompt", "A futuristic cyberpunk city...")
+                f_gemini = st.checkbox("Add Gemini Icon Watermark", value=True)
 
             run_btn = st.form_submit_button("Run Injection", type="primary")
 
@@ -434,6 +443,7 @@ def render_faker(original_array):
             current = apply_unsharp_mask(current, f_crisp)
             current = chroma_smoothing(current, f_chroma)
             current = spectral_grid_injection_v4(current, f_grid)
+            current = apply_gemini_watermark(current, f_gemini)
 
             img_pil = Image.fromarray(current)
             buf = io.BytesIO()
