@@ -58,13 +58,14 @@ def convert_to_rgb(image_file):
     """
     Convert uploaded image file to RGB numpy array. Cached.
     
-    [CONFIG] VPS SAFETY LIMIT: Change `max_dim` below to 4096+ for local/high-end use.
-    Currently set to 1024px to prevent crashes on VPS.
+    [CONFIG] High-Performance Mode (Main Branch).
+    Settings unlocked for local/dedicated hardware. 
+    Switch to 'deploy-vps' branch for 512MB RAM safety limits.
     """
     try:
         image = Image.open(image_file).convert('RGB')
         
-        max_dim = 1024
+        max_dim = 4096
         if image.width > max_dim or image.height > max_dim:
             image.thumbnail((max_dim, max_dim), Image.LANCZOS)
             
