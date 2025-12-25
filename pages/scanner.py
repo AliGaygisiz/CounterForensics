@@ -15,6 +15,11 @@ st.set_page_config(
 make_sidebar()
 load_css()
 
+# Check for Resize Toast from Home
+if "resize_msg" in st.session_state and st.session_state.resize_msg:
+    st.toast(st.session_state.resize_msg, icon="⚠️")
+    del st.session_state.resize_msg
+
 st.header("The Scanner: Spectral Analysis")
 
 # State Check

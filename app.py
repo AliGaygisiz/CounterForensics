@@ -60,8 +60,12 @@ Injects AI patterns into a real photo.
 
     # Upload Section
     st.subheader("📤 Upload Image")
+
+    is_prod = os.getenv("PROD", "false").lower() == "true"
+    max_mb = 10 if is_prod else 200
+
     uploaded_file = st.file_uploader(
-        "Choose a file (Max 200MB)", type=["jpg", "jpeg", "png"]
+        f"Choose a file (Max {max_mb}MB)", type=["jpg", "jpeg", "png"]
     )
     if uploaded_file:
         # Process & Redirect
@@ -77,9 +81,9 @@ Injects AI patterns into a real photo.
             
             original_array, _, was_resized = convert_to_rgb(uploaded_file)
             
-            if was_resized and st.session_state.get("toast_shown_id") != file_signature:
-                    st.toast("High-Res Image detected. Optimized to 1024px for stability.", icon="⚠️")
-                    st.session_state.toast_shown_id = file_signature
+            if was_resized:
+                msg = f"High-Res Image detected. Optimized to {1024 if is_prod else 4096}px for stability."
+                st.session_state.resize_msg = msg
 
             # Persist to Session State
             st.session_state.original_array = original_array
@@ -119,7 +123,8 @@ Injects AI patterns into a real photo.
                         original_array, _, was_resized = convert_to_rgb(path)
                         
                         if was_resized:
-                            st.toast("High-Res Sample optimized.", icon="⚠️")
+                            msg = f"High-Res Sample optimized to {1024 if is_prod else 4096}px."
+                            st.session_state.resize_msg = msg
                             
                         st.session_state.original_array = original_array
                         st.session_state.input_filename = os.path.splitext(os.path.basename(path))[0]

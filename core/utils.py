@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 from PIL import Image
+import os
 
 def load_css():
     """Inject custom CSS for Portfolio Polish."""
@@ -57,15 +58,14 @@ def load_css():
 def convert_to_rgb(image_file):
     """
     Convert uploaded image file to RGB numpy array. Cached.
-    
-    [CONFIG] High-Performance Mode (Main Branch).
-    Settings unlocked for local/dedicated hardware. 
-    Switch to 'deploy-vps' branch for 512MB RAM safety limits.
     """
+    # [CONFIG] Dynamic Limits based on Environment
+    is_prod = os.getenv("PROD", "false").lower() == "true"
+    max_dim = 1024 if is_prod else 4096
+    
     try:
         image = Image.open(image_file).convert('RGB')
         
-        max_dim = 4096
         was_resized = False
         if image.width > max_dim or image.height > max_dim:
             was_resized = True
