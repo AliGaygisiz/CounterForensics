@@ -2,9 +2,9 @@ import streamlit as st
 
 def make_sidebar():
     with st.sidebar:
-        st.title("🎭 Deception Toolkit")
+        st.title("🕵️‍♂️ CounterForensics")
         
-        st.write("") # Spacer
+        st.write("")
 
         st.page_link("app.py", label="Home", icon="🏠")
         st.page_link("pages/scanner.py", label="The Scanner", icon="📊")

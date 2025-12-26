@@ -16,7 +16,7 @@ from core.metadata import process_metadata
 from core.ui import render_comparison_row
 
 st.set_page_config(
-    page_title="The Humanizer - AI Deception Toolkit",
+    page_title="The Humanizer - CounterForensics",
     page_icon="📷",
     layout="wide"
 )

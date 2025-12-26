@@ -6,8 +6,8 @@ from core.utils import load_css, convert_to_rgb
 from core.navigation import make_sidebar
 
 st.set_page_config(
-    page_title="The AI Deception Toolkit",
-    page_icon="🎭",
+    page_title="CounterForensics",
+    page_icon="🕵️‍♂️",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -23,9 +23,9 @@ def main():
     st.markdown(
         """
 <div style='text-align: center; padding: 40px;'>
-<h1>The AI Deception Toolkit</h1>
+<h1>🕵️‍♂️ CounterForensics</h1>
 <p style='color: #9ca3af; font-size: 1.1em; max-width: 800px; margin: 0 auto 30px auto;'>
-A companion tool for the blog post: <i>"How to Trick AI Detectors."</i><br>
+A companion tool for the blog post: <a href="https://alig.dev/blog/how-to-trick-ai-detectors"><i>"How to Trick AI Detectors."</i></a><br>
 This interactive demo shows how easily detectors can be tricked by basic image manipulation.
 </p>
 <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; text-align: left;'>

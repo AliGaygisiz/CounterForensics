@@ -137,8 +137,11 @@ def spectral_grid_injection_v4(img, strength):
 def chroma_smoothing(img, strength):
     if strength <= 0: return img
     yuv = cv2.cvtColor(img, cv2.COLOR_RGB2YCrCb)
-    ksize = int(strength * 20) | 1
+    h, w = img.shape[:2]
+    base_k = int(w * 0.02 * strength)
+    ksize = base_k | 1
     if ksize < 3: ksize = 3
+    
     yuv[:,:,1] = cv2.GaussianBlur(yuv[:,:,1], (ksize, ksize), 0)
     yuv[:,:,2] = cv2.GaussianBlur(yuv[:,:,2], (ksize, ksize), 0)
     return cv2.cvtColor(yuv, cv2.COLOR_YCrCb2RGB)
@@ -159,7 +162,7 @@ def apply_gemini_watermark(img, active):
         import io
         from PIL import Image
     except ImportError:
-        # Fallback if CairoSVG is not installed (e.g. local dev without deps)
+        # Fallback if CairoSVG is not installed
         print("Warning: CairoSVG not found. Skipping watermark.")
         return img
 
@@ -168,27 +171,20 @@ def apply_gemini_watermark(img, active):
     logo_size = int(math.sqrt(short_side) * 1.5) 
     padding = int(logo_size * 0.66)
 
-    # Load and Convert SVG
     svg_path = "assets/gemini.svg"
     try:
-        # Convert SVG to PNG bytes
         png_data = cairosvg.svg2png(url=svg_path, output_width=logo_size, output_height=logo_size)
-        
-        # Load into PIL
         icon_pil = Image.open(io.BytesIO(png_data)).convert("RGBA")
         icon_arr = np.array(icon_pil)
-
-        # Force White Color (Set RGB to 255)
         icon_arr[:, :, 0:3] = 255
         
-        # Apply Opacity (0.6)
-        icon_arr[:, :, 3] = (icon_arr[:, :, 3] * 0.6).astype(np.uint8)
+        # Apply Opacity (0.5)
+        icon_arr[:, :, 3] = (icon_arr[:, :, 3] * 0.5).astype(np.uint8)
         
     except Exception as e:
         print(f"Error loading SVG watermark: {e}")
         return img
 
-    # 3. Overlay Logic
     # Position: Bottom Right
     y_offset = h - logo_size - padding
     x_offset = w - logo_size - padding
@@ -196,20 +192,13 @@ def apply_gemini_watermark(img, active):
     # Ensure usage within bounds
     if y_offset < 0 or x_offset < 0: return img
     
-    # Region of Interest (ROI)
     roi = img[y_offset:y_offset+logo_size, x_offset:x_offset+logo_size]
     
-    # Alpha Blending
-    # icon_arr is RGBA. Normalize alpha to 0-1
     alpha_mask = icon_arr[:, :, 3] / 255.0
-    alpha_mask = np.dstack([alpha_mask]*3) # Duplicate for RGB channels
+    alpha_mask = np.dstack([alpha_mask]*3)
     
-    # Icon RGB
     icon_rgb = icon_arr[:, :, :3]
     
-    # Blend: (Icon * Alpha) + (Background * (1 - Alpha))
-    # Note: ROI might be smaller if we are near edge, but we checked offsets.
-    # We should ensure shapes match exactly just in case (e.g. rounding errors)
     roi_h, roi_w = roi.shape[:2]
     icon_rgb = icon_rgb[:roi_h, :roi_w]
     alpha_mask = alpha_mask[:roi_h, :roi_w]

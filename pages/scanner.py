@@ -6,7 +6,7 @@ from core.analyzer import compute_fft, plot_2d_spectrum, plot_3d_spectrum
 from core.metadata import extract_exif
 
 st.set_page_config(
-    page_title="The Scanner - AI Deception Toolkit",
+    page_title="The Scanner - CounterForensics",
     page_icon="📊",
     layout="wide"
 )
@@ -89,7 +89,7 @@ with r2c2:
                     "Tag": st.column_config.TextColumn("Tag", width="medium"),
                     "Value": st.column_config.TextColumn("Value", width="large"),
                 },
-                use_container_width=True,
+                width="stretch",
                 hide_index=True,
             )
     else:
