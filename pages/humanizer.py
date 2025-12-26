@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 import io
+import logging
 from PIL import Image
 from core.utils import load_css
 from core.navigation import make_sidebar
@@ -82,6 +83,7 @@ with col_tools:
         run_btn = st.form_submit_button("Run Simulation", type="primary")
 
 if run_btn:
+    logging.info("humanizer runned")
     with st.spinner("Simulating optical path..."):
         current = original_array.copy()
         # Pipeline: Flip -> Crop -> Perspective -> CFA -> Optics -> Noise

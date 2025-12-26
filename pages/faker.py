@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 import io
+import logging
 from PIL import Image
 from core.utils import load_css
 from core.navigation import make_sidebar
@@ -54,7 +55,7 @@ with col_tools:
 
         with st.expander("🧬 Generative Artifacts", expanded=True):
             f_grid = st.slider("Stealth Spectral Grid", 0.0, 1.0, 0.6)
-            f_plastic = st.slider("Plasticity Smoothing", 0.0, 1.0, 0.5)
+            f_plastic = st.slider("Plasticity Smoothing", 0.0, 1.0, 0.2)
             f_crisp = st.slider(
                 "AI Crispness (Unsharp)",
                 0.0,
@@ -75,6 +76,7 @@ with col_tools:
         run_btn = st.form_submit_button("Run Injection", type="primary")
 
 if run_btn:
+    logging.info("faker runned")
     with st.spinner("Injecting generative artifacts..."):
         current = original_array.copy()
         current = apply_crop(current, f_crop)

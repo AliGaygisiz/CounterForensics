@@ -2,8 +2,15 @@ import streamlit as st
 import numpy as np
 import os
 import glob
+import logging
 from core.utils import load_css, convert_to_rgb
 from core.navigation import make_sidebar
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 st.set_page_config(
     page_title="CounterForensics",
@@ -16,10 +23,6 @@ def main():
     make_sidebar()
     load_css()
     
-    # Sidebar: Title & Info (REMOVED - handled by make_sidebar)
-    # with st.sidebar: ...
-
-    # Main Area: Welcome Screen
     st.markdown(
         """
 <div style='text-align: center; padding: 40px;'>
@@ -90,6 +93,8 @@ Injects AI patterns into a real photo.
             st.session_state.input_filename = os.path.splitext(uploaded_file.name)[0]
             # Store object reference
             st.session_state.uploaded_file_obj = uploaded_file 
+            
+            logger.info(f"image uploaded: {uploaded_file.name}") 
 
         st.success("Image Loaded!")
         st.switch_page("pages/scanner.py")
