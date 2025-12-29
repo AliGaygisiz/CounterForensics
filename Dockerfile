@@ -29,4 +29,4 @@ ENTRYPOINT ["sh", "-c", \
     uid = os.environ.get('UMAMI_ID'); \
     script = f'<script id=\\\"umami-script\\\" defer src=\\\"{url}\\\" data-website-id=\\\"{uid}\\\"></script>'; \
     open(path, 'w').write(content.replace('</head>', f'{script}</head>')) if url and uid and 'umami-script' not in content else None\" \
-    && streamlit run app.py --server.port=8501 --server.address=0.0.0.0 --server.enableCORS=false"]
+    && streamlit run app.py --server.port=8501 --server.address=0.0.0.0 --server.enableCORS=false --server.enableXsrfProtection=false"]

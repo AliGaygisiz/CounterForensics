@@ -3,6 +3,7 @@ import numpy as np
 import os
 import glob
 import logging
+import gc
 from core.utils import load_css, convert_to_rgb
 from core.navigation import make_sidebar
 
@@ -81,6 +82,9 @@ Injects AI patterns into a real photo.
                 st.session_state.processing_type = None
                 st.session_state.last_uploaded_file = file_signature
                 st.session_state.toast_shown_id = None # Reset toast
+                
+                # Force Garbage Collection to free memory from previous session/image
+                gc.collect()
             
             original_array, _, was_resized = convert_to_rgb(uploaded_file)
             

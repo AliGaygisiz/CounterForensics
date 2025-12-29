@@ -1,6 +1,5 @@
 import streamlit as st
 import numpy as np
-import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
 @st.cache_data
@@ -14,13 +13,21 @@ def compute_fft(image_array):
 
 @st.cache_data
 def plot_2d_spectrum(magnitude_spectrum):
-    """Renders 2D frequency map using Matplotlib."""
-    fig, ax = plt.subplots(figsize=(6, 6))
-    with plt.style.context("dark_background"):
-        ax.imshow(magnitude_spectrum, cmap='inferno')
-        ax.set_title('Frequency Domain Analysis', fontsize=8, color='gray')
-        ax.axis('off')
-        fig.patch.set_facecolor('#0e1117')
+    """Renders 2D frequency map using Matplotlib OOP API (No Memory Leak)."""
+    from matplotlib.figure import Figure
+    
+    # Create Figure instance directly (bypasses pyplot global state)
+    fig = Figure(figsize=(6, 6))
+    ax = fig.subplots()
+    
+    # Apply style manually since we aren't using pyplot context for the figure creation
+    fig.patch.set_facecolor('#0e1117')
+    ax.set_facecolor('#0e1117')
+    
+    ax.imshow(magnitude_spectrum, cmap='inferno')
+    ax.set_title('Frequency Domain Analysis', fontsize=8, color='gray')
+    ax.axis('off')
+    
     return fig
 
 @st.cache_data
